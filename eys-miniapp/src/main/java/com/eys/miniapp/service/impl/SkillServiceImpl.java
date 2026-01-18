@@ -34,6 +34,7 @@ public class SkillServiceImpl implements SkillService {
     private final GaGameRecordMapper gaGameRecordMapper;
     private final GaGamePlayerMapper gaGamePlayerMapper;
     private final GaSkillInstanceMapper gaSkillInstanceMapper;
+    private final GaPlayerStatusMapper gaPlayerStatusMapper;
     private final GaActionLogMapper gaActionLogMapper;
     private final CfgSkillMapper cfgSkillMapper;
     private final EffectProcessor effectProcessor;
@@ -56,6 +57,22 @@ public class SkillServiceImpl implements SkillService {
         GaGamePlayer player = gaGamePlayerMapper.selectById(gamePlayerId);
         GaGameRecord record = gaGameRecordMapper.selectById(player.getGameId());
 
+        // 检查游戏状态
+        if (record.getStatus() != GameStatus.PLAYING) {
+            throw new BusinessException(ResultCode.GAME_NOT_PLAYING);
+        }
+
+        // 检查游戏阶段（技能通常在夜晚使用）
+        if (record.getCurrentStage() != GameStage.NIGHT) {
+            throw new BusinessException(ResultCode.BIZ_ERROR, "当前阶段不可使用技能");
+        }
+
+        // 检查玩家是否存活
+        GaPlayerStatus playerStatus = gaPlayerStatusMapper.selectById(gamePlayerId);
+        if (playerStatus == null || !playerStatus.getIsAlive()) {
+            throw new BusinessException(ResultCode.PLAYER_ALREADY_DEAD, "死亡玩家无法使用技能");
+        }
+
         // 检查技能是否可用
         if (!instance.getIsActive()) {
             throw new BusinessException(ResultCode.BIZ_ERROR, "技能已失效");
@@ -75,12 +92,12 @@ public class SkillServiceImpl implements SkillService {
         instance.setUsedCount(instance.getUsedCount() + 1);
         gaSkillInstanceMapper.updateById(instance);
 
-        // 记录动作日志
+        // 记录动作日志（玩家主动使用技能，sourceType 应为 PLAYER_ACTION）
         GaActionLog log = new GaActionLog();
         log.setGameId(player.getGameId());
         log.setRoundNo(record.getCurrentRound());
         log.setStage(record.getCurrentStage());
-        log.setSourceType(ActionSourceType.DM_EXECUTE);
+        log.setSourceType(ActionSourceType.PLAYER_ACTION);
         log.setActionType(ActionType.SKILL);
         log.setInitiatorId(gamePlayerId);
         log.setTargetIds(targetIds);

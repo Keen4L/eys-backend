@@ -32,7 +32,7 @@ public class GameFlowController {
             @Parameter(description = "对局ID") @PathVariable Long gameId,
             @Parameter(description = "地图ID") @RequestParam Long mapId,
             @Parameter(description = "角色ID列表") @RequestParam List<Long> roleIds,
-            @Parameter(description = "内定角色映射（userId -> roleId）") @RequestParam(required = false) Map<Long, Long> assignedRoles) {
+            @Parameter(description = "内定角色映射（gamePlayerId -> roleId）") @RequestParam(required = false) Map<Long, Long> assignedRoles) {
         dmAuthHelper.checkDm(gameId);
         return Result.success(gameFlowService.startGame(gameId, mapId, roleIds, assignedRoles));
     }

@@ -82,7 +82,17 @@ public class GameWebSocket implements ApplicationContextAware {
     public void onOpen(Session session, @PathParam("gameId") Long gameId) {
         try {
             // 从 URL 参数获取 token
-            String token = session.getRequestParameterMap().get("token").get(0);
+            var tokenParams = session.getRequestParameterMap().get("token");
+            if (tokenParams == null || tokenParams.isEmpty()) {
+                session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "缺少token参数"));
+                return;
+            }
+            String token = tokenParams.get(0);
+            if (token == null || token.isBlank()) {
+                session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "token为空"));
+                return;
+            }
+
             // 验证 token 并获取用户ID
             Object loginId = StpUtil.getLoginIdByToken(token);
             if (loginId == null) {
