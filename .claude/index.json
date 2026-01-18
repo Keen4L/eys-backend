@@ -1,0 +1,128 @@
+{
+  "lastScanned": "2026-01-14T00:00:00Z",
+  "projectType": "Java Maven Multi-Module",
+  "rootPath": "/Users/lchily/Desktop/eys-backend",
+  "modules": [
+    {
+      "name": "eys-common",
+      "path": "eys-common",
+      "type": "library",
+      "description": "通用模块：异常、统一响应、常量、工具类",
+      "entryPoints": [
+        "src/main/java/com/eys/common/exception/GlobalExceptionHandler.java",
+        "src/main/java/com/eys/common/result/Result.java"
+      ],
+      "keyFiles": [
+        "src/main/java/com/eys/common/exception/BusinessException.java",
+        "src/main/java/com/eys/common/utils/RoomCodeGenerator.java",
+        "src/main/java/com/eys/common/utils/AssertUtils.java"
+      ]
+    },
+    {
+      "name": "eys-model",
+      "path": "eys-model",
+      "type": "library",
+      "description": "数据模型：Entity、DTO、VO、Enum",
+      "entryPoints": [],
+      "keyFiles": [
+        "src/main/java/com/eys/model/entity/GaGameRecord.java",
+        "src/main/java/com/eys/model/entity/CfgSkill.java",
+        "src/main/java/com/eys/model/config/SkillEffectConfig.java"
+      ],
+      "entityCount": 13,
+      "enumCount": 18,
+      "voCount": 9
+    },
+    {
+      "name": "eys-mapper",
+      "path": "eys-mapper",
+      "type": "library",
+      "description": "数据访问层：Mapper 接口",
+      "entryPoints": [],
+      "keyFiles": [
+        "src/main/java/com/eys/mapper/GaGameRecordMapper.java",
+        "src/main/java/com/eys/mapper/CfgSkillMapper.java"
+      ],
+      "mapperCount": 13
+    },
+    {
+      "name": "eys-admin",
+      "path": "eys-admin",
+      "type": "service",
+      "description": "管理端模块：后台管理 API",
+      "entryPoints": [
+        "src/main/java/com/eys/admin/controller/AdminSkillController.java",
+        "src/main/java/com/eys/admin/controller/AdminRoleController.java"
+      ],
+      "keyFiles": [
+        "src/main/java/com/eys/admin/service/AdminSkillService.java",
+        "src/main/java/com/eys/admin/service/impl/AdminSkillServiceImpl.java"
+      ],
+      "controllerCount": 7,
+      "serviceCount": 7
+    },
+    {
+      "name": "eys-miniapp",
+      "path": "eys-miniapp",
+      "type": "service",
+      "description": "小程序端模块：DM 和玩家 API、技能处理器、WebSocket",
+      "entryPoints": [
+        "src/main/java/com/eys/miniapp/controller/RoomController.java",
+        "src/main/java/com/eys/miniapp/controller/GameFlowController.java"
+      ],
+      "keyFiles": [
+        "src/main/java/com/eys/miniapp/service/RoomService.java",
+        "src/main/java/com/eys/miniapp/processor/TriggerProcessor.java",
+        "src/main/java/com/eys/miniapp/config/WebSocketConfig.java"
+      ],
+      "controllerCount": 4,
+      "serviceCount": 5,
+      "processorCount": 6
+    },
+    {
+      "name": "eys-web",
+      "path": "eys-web",
+      "type": "application",
+      "description": "启动模块：Spring Boot 启动类和配置文件",
+      "entryPoints": [
+        "src/main/java/com/eys/EysApplication.java"
+      ],
+      "keyFiles": [
+        "src/main/resources/application.yml",
+        "src/main/java/com/eys/web/config/Knife4jConfig.java",
+        "src/main/java/com/eys/web/config/SaTokenConfig.java",
+        "src/main/java/com/eys/web/config/MybatisPlusConfig.java"
+      ]
+    }
+  ],
+  "database": {
+    "type": "MySQL",
+    "schemaFiles": [
+      "开发相关文件/1_init_schema.sql",
+      "开发相关文件/2_init_data.sql"
+    ],
+    "tables": {
+      "system": ["sys_user", "sys_user_match"],
+      "config": ["cfg_map", "cfg_map_spawn_point", "cfg_role", "cfg_skill", "cfg_deck"],
+      "game": ["ga_game_record", "ga_game_player", "ga_player_status", "ga_skill_instance", "ga_action_log", "ga_player_spawn"]
+    }
+  },
+  "coverage": {
+    "estimatedTotalFiles": 120,
+    "scannedFiles": 85,
+    "coveragePercent": 70.8,
+    "gaps": [
+      "部分 service impl 实现类未深度扫描",
+      "测试代码未发现",
+      "部分 VO/DTO 类未全部扫描"
+    ]
+  },
+  "ignorePatterns": [
+    "target/**",
+    ".git/**",
+    ".vscode/**",
+    "*.class",
+    "*.jar"
+  ],
+  "truncated": false
+}

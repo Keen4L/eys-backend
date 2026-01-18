@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.eys</groupId>
+        <artifactId>eys-backend</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>eys-web</artifactId>
+    <name>eys-web</name>
+    <description>启动模块：Spring Boot 启动类和配置文件</description>
+
+    <dependencies>
+        <!-- 依赖 admin 和 miniapp 模块 -->
+        <dependency>
+            <groupId>com.eys</groupId>
+            <artifactId>eys-admin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.eys</groupId>
+            <artifactId>eys-miniapp</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Actuator（健康检查） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

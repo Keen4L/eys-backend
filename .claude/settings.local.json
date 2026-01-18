@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean compile -DskipTests)",
+      "Bash(mvn clean compile -DskipTests -pl eys-common)",
+      "Bash(java -version)",
+      "Bash(/usr/libexec/java_home -V)",
+      "Bash(brew list --formula)",
+      "Bash(/opt/homebrew/opt/openjdk@17/bin/java -version)",
+      "Bash(echo $SHELL)",
+      "Bash(source ~/.zshrc)",
+      "Bash(echo $JAVA_HOME)",
+      "Bash(export JAVA_HOME=\"/opt/homebrew/opt/openjdk@17\")",
+      "Bash(export PATH=\"$JAVA_HOME/bin:$PATH\")",
+      "Bash(JAVA_HOME=\"/opt/homebrew/opt/openjdk@17\" mvn clean compile -DskipTests)",
+      "Bash(find . -name SkillEffectConfig.class -exec javap -p {})"
+    ]
+  }
+}

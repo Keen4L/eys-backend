@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.eys</groupId>
+        <artifactId>eys-backend</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>eys-admin</artifactId>
+    <name>eys-admin</name>
+    <description>管理端模块：后台管理 API</description>
+
+    <dependencies>
+        <!-- 依赖 mapper 模块 -->
+        <dependency>
+            <groupId>com.eys</groupId>
+            <artifactId>eys-mapper</artifactId>
+        </dependency>
+
+        <!-- Sa-Token 认证 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+        </dependency>
+    </dependencies>
+</project>
