@@ -76,7 +76,7 @@ public class RoomServiceImpl implements RoomService {
         record.setCurrentRound(0);
         gaGameRecordMapper.insert(record);
 
-        return buildRoomInfo(record);
+        return pushService.buildRoomInfo(record.getId());
     }
 
     @Override
@@ -97,7 +97,7 @@ public class RoomServiceImpl implements RoomService {
                         .eq(GaGamePlayer::getUserId, userId));
         if (existing != null) {
             // 已在房间中，直接返回房间信息
-            return buildRoomInfo(record);
+            return pushService.buildRoomInfo(record.getId());
         }
 
         // 检查是否已在其他活跃房间中（一个用户同时只能在一个房间）
@@ -139,7 +139,7 @@ public class RoomServiceImpl implements RoomService {
         gaGamePlayerMapper.insert(player);
 
         // 构建并推送房间更新
-        RoomInfoVO roomInfo = buildRoomInfo(record);
+        RoomInfoVO roomInfo = pushService.buildRoomInfo(record.getId());
         pushService.pushRoomUpdate(record.getId(), roomInfo);
 
         return roomInfo;
@@ -161,7 +161,7 @@ public class RoomServiceImpl implements RoomService {
                         .in(GaGameRecord::getStatus, GameStatus.WAITING, GameStatus.PLAYING));
         AssertUtils.notNull(record, ResultCode.ROOM_NOT_FOUND);
 
-        return buildRoomInfo(record);
+        return pushService.buildRoomInfo(record.getId());
     }
 
     @Override
@@ -251,7 +251,7 @@ public class RoomServiceImpl implements RoomService {
             }
 
             // 推送房间更新
-            RoomInfoVO roomInfo = buildRoomInfo(record);
+            RoomInfoVO roomInfo = pushService.buildRoomInfo(record.getId());
             pushService.pushRoomUpdate(record.getId(), roomInfo);
             return true;
         }
@@ -280,48 +280,6 @@ public class RoomServiceImpl implements RoomService {
         }
     }
 
-    /**
-     * 构建房间信息 VO
-     */
-    private RoomInfoVO buildRoomInfo(GaGameRecord record) {
-        RoomInfoVO vo = new RoomInfoVO();
-        vo.setGameId(record.getId());
-        vo.setRoomCode(record.getRoomCode());
-        vo.setDmUserId(record.getDmUserId());
-        vo.setStatus(record.getStatus().getCode());
-        vo.setCurrentRound(record.getCurrentRound());
-        vo.setCurrentStage(record.getCurrentStage() != null ? record.getCurrentStage().getCode() : null);
-        vo.setMapId(record.getMapId());
-
-        // 玩家列表
-        List<GaGamePlayer> players = gaGamePlayerMapper.selectList(
-                new LambdaQueryWrapper<GaGamePlayer>()
-                        .eq(GaGamePlayer::getGameId, record.getId())
-                        .orderByAsc(GaGamePlayer::getSeatNo));
-
-        // 批量获取用户信息
-        Set<Long> userIds = players.stream().map(GaGamePlayer::getUserId).collect(Collectors.toSet());
-        List<SysUser> users = userIds.isEmpty() ? List.of() : sysUserMapper.selectBatchIds(userIds);
-        var userMap = users.stream().collect(Collectors.toMap(SysUser::getId, u -> u));
-
-        List<RoomInfoVO.PlayerInfo> playerInfos = new ArrayList<>();
-        for (GaGamePlayer player : players) {
-            RoomInfoVO.PlayerInfo info = new RoomInfoVO.PlayerInfo();
-            info.setUserId(player.getUserId());
-            info.setSeatNo(player.getSeatNo());
-            
-            // 填充用户信息
-            SysUser user = userMap.get(player.getUserId());
-            if (user != null) {
-                info.setNickname(user.getNickname());
-                info.setAvatarUrl(user.getAvatarUrl());
-            }
-            playerInfos.add(info);
-        }
-        vo.setPlayers(playerInfos);
-
-        return vo;
-    }
 
     // ==================== DM 管理操作 ====================
 
@@ -353,7 +311,7 @@ public class RoomServiceImpl implements RoomService {
         gaGamePlayerMapper.updateById(player2);
 
         // 推送房间更新
-        RoomInfoVO roomInfo = buildRoomInfo(record);
+        RoomInfoVO roomInfo = pushService.buildRoomInfo(record.getId());
         pushService.pushRoomUpdate(record.getId(), roomInfo);
     }
 
@@ -422,7 +380,7 @@ public class RoomServiceImpl implements RoomService {
                         .eq(GaGamePlayer::getGameId, newRecord.getId())
                         .eq(GaGamePlayer::getUserId, userId));
         if (existing != null) {
-            return buildRoomInfo(newRecord);
+            return pushService.buildRoomInfo(newRecord.getId());
         }
 
         // 4. 获取当前新对局的玩家数，分配座位号
@@ -446,7 +404,7 @@ public class RoomServiceImpl implements RoomService {
         gaGamePlayerMapper.insert(player);
 
         // 7. 推送房间更新
-        RoomInfoVO roomInfo = buildRoomInfo(newRecord);
+        RoomInfoVO roomInfo = pushService.buildRoomInfo(newRecord.getId());
         pushService.pushRoomUpdate(newRecord.getId(), roomInfo);
 
         return roomInfo;

@@ -38,4 +38,7 @@ public class PlayerPushVO {
 
     @Schema(description = "我的角色ID")
     private Long myRoleId;
+
+    @Schema(description = "是否可以投票（投票阶段使用）")
+    private Boolean canVote;
 }

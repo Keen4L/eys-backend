@@ -26,8 +26,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
                     .notMatch("/api/admin/auth/**")
                     .check(r -> StpUtil.checkLogin());
 
-            // 小程序端接口需要登录
-            // TODO: 需要实现 /api/mp/auth/wx-login 微信登录接口
+            // 小程序端接口需要登录（微信登录接口除外）
             SaRouter.match("/api/mp/**")
                     .notMatch("/api/mp/auth/**")
                     .check(r -> StpUtil.checkLogin());

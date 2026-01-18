@@ -62,10 +62,7 @@ public class SkillServiceImpl implements SkillService {
             throw new BusinessException(ResultCode.GAME_NOT_PLAYING);
         }
 
-        // 检查游戏阶段（技能通常在夜晚使用）
-        if (record.getCurrentStage() != GameStage.NIGHT) {
-            throw new BusinessException(ResultCode.BIZ_ERROR, "当前阶段不可使用技能");
-        }
+        // 注：技能使用阶段由 DM 控制推送时机，前端不限制阶段
 
         // 检查玩家是否存活
         GaPlayerStatus playerStatus = gaPlayerStatusMapper.selectById(gamePlayerId);

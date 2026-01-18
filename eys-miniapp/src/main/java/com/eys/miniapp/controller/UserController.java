@@ -5,10 +5,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.eys.common.result.Result;
 import com.eys.common.result.ResultCode;
 import com.eys.common.utils.AssertUtils;
+import com.eys.mapper.GaGamePlayerMapper;
+import com.eys.mapper.GaGameRecordMapper;
 import com.eys.mapper.SysUserMapper;
 import com.eys.mapper.SysUserMatchMapper;
+import com.eys.model.entity.GaGamePlayer;
+import com.eys.model.entity.GaGameRecord;
 import com.eys.model.entity.SysUser;
 import com.eys.model.entity.SysUserMatch;
+import com.eys.model.enums.GameStatus;
 import com.eys.model.vo.UserStatsVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,6 +37,8 @@ public class UserController {
 
     private final SysUserMapper sysUserMapper;
     private final SysUserMatchMapper sysUserMatchMapper;
+    private final GaGameRecordMapper gaGameRecordMapper;
+    private final GaGamePlayerMapper gaGamePlayerMapper;
 
     @Operation(summary = "获取当前用户信息")
     @GetMapping("/me")
@@ -87,6 +94,48 @@ public class UserController {
         return Result.success(vo);
     }
 
+    @Operation(summary = "获取当前进行中的游戏", description = "用于断线重连时查询是否有进行中的游戏")
+    @GetMapping("/current-game")
+    public Result<CurrentGameVO> getCurrentGame() {
+        Long userId = StpUtil.getLoginIdAsLong();
+        
+        // 1. 检查是否是某个游戏的 DM（WAITING 或 PLAYING 状态）
+        GaGameRecord dmRecord = gaGameRecordMapper.selectOne(
+                new LambdaQueryWrapper<GaGameRecord>()
+                        .eq(GaGameRecord::getDmUserId, userId)
+                        .in(GaGameRecord::getStatus, GameStatus.WAITING, GameStatus.PLAYING)
+                        .last("LIMIT 1"));
+        if (dmRecord != null) {
+            CurrentGameVO vo = new CurrentGameVO();
+            vo.setGameId(dmRecord.getId());
+            vo.setRoomCode(dmRecord.getRoomCode());
+            vo.setStatus(dmRecord.getStatus().getCode());
+            vo.setIsDm(true);
+            return Result.success(vo);
+        }
+        
+        // 2. 检查是否作为玩家参与某个活跃游戏
+        GaGamePlayer player = gaGamePlayerMapper.selectOne(
+                new LambdaQueryWrapper<GaGamePlayer>()
+                        .eq(GaGamePlayer::getUserId, userId)
+                        .last("LIMIT 1"));
+        if (player != null) {
+            GaGameRecord record = gaGameRecordMapper.selectById(player.getGameId());
+            if (record != null && 
+                (record.getStatus() == GameStatus.WAITING || record.getStatus() == GameStatus.PLAYING)) {
+                CurrentGameVO vo = new CurrentGameVO();
+                vo.setGameId(record.getId());
+                vo.setRoomCode(record.getRoomCode());
+                vo.setStatus(record.getStatus().getCode());
+                vo.setIsDm(false);
+                return Result.success(vo);
+            }
+        }
+        
+        // 3. 无进行中的游戏
+        return Result.success(null);
+    }
+
     // ==================== VO/DTO ====================
 
     @Data
@@ -109,6 +158,19 @@ public class UserController {
         private String nickname;
         @Schema(description = "头像URL")
         private String avatarUrl;
+    }
+
+    @Data
+    @Schema(description = "当前进行中的游戏")
+    public static class CurrentGameVO {
+        @Schema(description = "对局ID")
+        private Long gameId;
+        @Schema(description = "房间邀请码")
+        private String roomCode;
+        @Schema(description = "游戏状态: WAITING/PLAYING")
+        private String status;
+        @Schema(description = "是否为DM")
+        private Boolean isDm;
     }
 }
 

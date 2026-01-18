@@ -5,9 +5,11 @@ import com.eys.common.result.Result;
 import com.eys.mapper.CfgDeckMapper;
 import com.eys.mapper.CfgMapMapper;
 import com.eys.mapper.CfgRoleMapper;
+import com.eys.mapper.CfgSkillMapper;
 import com.eys.model.entity.CfgDeck;
 import com.eys.model.entity.CfgMap;
 import com.eys.model.entity.CfgRole;
+import com.eys.model.entity.CfgSkill;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +21,7 @@ import java.util.List;
 /**
  * 小程序端 - 配置数据（只读）
  * 
- * 提供地图、角色、牌组等配置数据的查询接口，供 DM 开局时使用。
+ * 提供地图、角色、牌组、技能等配置数据的查询接口，供 DM 开局时使用。
  */
 @Tag(name = "配置数据")
 @RestController
@@ -30,6 +32,7 @@ public class ConfigController {
     private final CfgMapMapper cfgMapMapper;
     private final CfgRoleMapper cfgRoleMapper;
     private final CfgDeckMapper cfgDeckMapper;
+    private final CfgSkillMapper cfgSkillMapper;
 
     // ==================== 地图 ====================
 
@@ -77,6 +80,25 @@ public class ConfigController {
     @GetMapping("/decks/{id}")
     public Result<CfgDeck> getDeckDetail(@Parameter(description = "牌组ID") @PathVariable Long id) {
         return Result.success(cfgDeckMapper.selectById(id));
+    }
+
+    // ==================== 技能 ====================
+
+    @Operation(summary = "获取技能列表", description = "可按角色ID筛选")
+    @GetMapping("/skills")
+    public Result<List<CfgSkill>> getSkillList(
+            @Parameter(description = "角色ID") @RequestParam(required = false) Long roleId) {
+        LambdaQueryWrapper<CfgSkill> wrapper = new LambdaQueryWrapper<>();
+        if (roleId != null) {
+            wrapper.eq(CfgSkill::getRoleId, roleId);
+        }
+        return Result.success(cfgSkillMapper.selectList(wrapper));
+    }
+
+    @Operation(summary = "获取技能详情")
+    @GetMapping("/skills/{id}")
+    public Result<CfgSkill> getSkillDetail(@Parameter(description = "技能ID") @PathVariable Long id) {
+        return Result.success(cfgSkillMapper.selectById(id));
     }
 }
 

@@ -216,6 +216,19 @@ public class GameStatePushServiceImpl implements GameStatePushService {
                     state.setMySpawnPointId(mySpawn.getSpawnPointId());
                 }
             }
+
+            // 计算是否可以投票
+            GaPlayerStatus status = gaPlayerStatusMapper.selectById(currentPlayer.getId());
+            if (status != null && status.getIsAlive() != null && status.getIsAlive()) {
+                // 检查是否有 BLOCK_VOTE 标签
+                boolean hasBlockVote = status.getActiveTags() != null &&
+                        status.getActiveTags().stream()
+                                .anyMatch(tag -> tag.getEffects() != null &&
+                                        tag.getEffects().contains(com.eys.model.enums.TagEffect.BLOCK_VOTE));
+                state.setCanVote(!hasBlockVote);
+            } else {
+                state.setCanVote(false);
+            }
         }
 
         return state;
